@@ -1,70 +1,127 @@
-# Getting Started with Create React App
+## Terribly Tiny Tales Word Analysis Project
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a React application that fetches data from a URL and analyzes the frequency of words in the text. The top 20 most frequently occurring words are displayed in a bar chart, and the user can also export the data in CSV format.
 
-## Available Scripts
+```
+import "./App.css";
+import { useState } from "react";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts";
+import { CSVLink } from "react-csv";
+```
 
-In the project directory, you can run:
+This block of code imports the required dependencies for the project. useState is used to manage state within the component. ResponsiveContainer, BarChart, Bar, XAxis, YAxis, and Tooltip are from the recharts library, which is used to create the bar chart. CSVLink is from the react-csv library, which is used to export the data as a CSV file.
 
-### `npm start`
+```
+const headers = [
+  { label: "Word", key: "word" },
+  { label: "Count", key: "count" },
+];
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+This block of code creates an array of headers for the CSV file.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```
+function App() {
+  const [isContent, setIsContent] = useState("");
+  const [mostOccure, setMostOccure] = useState([]);
+```
 
-### `npm test`
+This block of code defines the App component and initializes the state variables isContent and mostOccure using the useState hook. isContent stores the text data fetched from the URL, and mostOccure stores the array of top 20 most frequently occurring words.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+function compare(first, second) {
+  return second.count - first.count;
+}
+```
 
-### `npm run build`
+This block of code defines a function compare that takes in two objects first and second and returns the difference between their count properties. This function is used to sort the array of word-count objects in descending order of frequency.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+async function fetchData() {
+  const response = await fetch("https://www.terriblytinytales.com/test.txt");
+  const data = await response.text();
+  setIsContent(data);
+  const temp = data.split("\n");
+  let temp2 = [];
+  temp.forEach((ele) => {
+    ele.split(" ").map((e) => {
+      if (
+        e[e.length - 1] === "?" ||
+        e[e.length - 1] === "." ||
+        e[e.length - 1] === "," ||
+        e[e.length - 1] === ";" ||
+        e[e.length - 1] === "," ||
+        e[e.length - 1] === ")"
+      ) {
+        e = e.substring(0, e.length - 1);
+      } else if (e !== "," && e !== "." && e !== "/" && e !== "")
+        temp2.push(e);
+    });
+  });
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+  const dataSplit = temp2.map((ele) => ele.toLowerCase());
+  const hashmap = {};
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+  dataSplit.forEach((ele) => {
+    hashmap[ele] = 0;
+  });
 
-### `npm run eject`
+  dataSplit.forEach((ele) => {
+    hashmap[ele]++;
+  });
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+  const histogramdata = [];
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+  Object.keys(hashmap).forEach((word) => {
+    histogramdata.push({ word: word, count: hashmap[word] });
+  });
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+  const actualdata = histogramdata.sort(compare);
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+  actualdata.splice(20, actualdata.length - 1);
+  setMostOccure(actualdata);
+}
+```
 
-## Learn More
+This block of code defines an asynchronous function fetchData which is called when the component mounts. fetchData fetches the text data from the URL using the fetch API and sets the state variable isContent with the fetched data. It then processes the data by splitting it into an array of words, removing any punctuation and filtering out any empty strings or common stop words. It then generates a frequency count for each word using a hash map and constructs an array of objects containing each word and its frequency count. This array is then sorted in descending order of frequency using the compare function and truncated to contain only the top 20 most frequently occurring words. The resulting array is then set as the state variable mostOccure.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```
+return (
+<div className="App">
+<header className="App-header">
+<h1>Terribly Tiny Tales Word Analysis</h1>
+<form onSubmit={handleSubmit}>
+<label>
+Enter URL to fetch text data:
+<input type="text" value={url} onChange={handleURLChange} />
+</label>
+<input type="submit" value="Fetch Data" />
+</form>
+{isContent && (
+<div>
+<ResponsiveContainer width="100%" height={400}>
+<BarChart data={mostOccure}>
+<XAxis dataKey="word" />
+<YAxis />
+<Tooltip />
+<Bar dataKey="count" fill="#8884d8" />
+</BarChart>
+</ResponsiveContainer>
+<CSVLink data={mostOccure} headers={headers}>
+Download CSV
+</CSVLink>
+</div>
+)}
+</header>
+</div>
+);
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This block of code defines the render method for the App component. It returns a form with an input field where the user can enter a URL to fetch text data. When the form is submitted, it calls the handleSubmit function. The component then checks if isContent is truthy and if so, it renders a bar chart using the data stored in mostOccure. It also includes a Download CSV button using the CSVLink component from the react-csv library, which exports the data in CSV format. The headers for the CSV file are defined in the headers array.
