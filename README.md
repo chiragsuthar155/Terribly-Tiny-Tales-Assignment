@@ -96,35 +96,48 @@ This block of code defines an asynchronous function fetchData which is called wh
 
 ```
 return (
-<div className="App">
-<header className="App-header">
-<h1>Terribly Tiny Tales Word Analysis</h1>
-<form onSubmit={handleSubmit}>
-<label>
-Enter URL to fetch text data:
-<input type="text" value={url} onChange={handleURLChange} />
-</label>
-<input type="submit" value="Fetch Data" />
-</form>
-{isContent && (
-<div>
-<ResponsiveContainer width="100%" height={400}>
-<BarChart data={mostOccure}>
-<XAxis dataKey="word" />
-<YAxis />
-<Tooltip />
-<Bar dataKey="count" fill="#8884d8" />
-</BarChart>
-</ResponsiveContainer>
-<CSVLink data={mostOccure} headers={headers}>
-Download CSV
-</CSVLink>
-</div>
-)}
-</header>
-</div>
+<div className="py-4 ">
+      <button
+        className="btn btn-success"
+        type="button"
+        onClick={() => {
+          fetchData();
+        }}
+        style={{ marginRight: "20px", marginLeft: "30px" }}
+      >
+        Submit
+      </button>
+      <CSVLink
+        data={mostOccure}
+        headers={headers}
+        filename="Terribly_Tiny_Tales"
+      >
+        <button className="btn btn-primary" type="button">
+          Export
+        </button>
+      </CSVLink>
+
+      {isContent ? (
+        <div style={{ marginLeft: "200px", marginTop: "100px" }}>
+          <ResponsiveContainer className="mb-4" width="80%" aspect={3}>
+            <BarChart data={mostOccure} width={400} height={400}>
+              <XAxis dataKey="word" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="count" fill="#8883d8" />
+            </BarChart>
+          </ResponsiveContainer>
+          <h1 className="pt-4">
+            Terribly Tiny Tales:{" "}
+            <span style={{ color: "#8883d8" }}>Word Analysis Project</span>
+          </h1>
+        </div>
+      ) : (
+        ""
+      )}
+    </div>
 );
 ```
 
-This block of code defines the render method for the App component. It returns a form with an input field where the user can enter a URL to fetch text data. When the form is submitted, it calls the handleSubmit function. The component then checks if isContent is truthy and if so, it renders a bar chart using the data stored in mostOccure. It also includes a Download CSV button using the CSVLink component from the react-csv library, which exports the data in CSV format. The headers for the CSV file are defined in the headers array.
+The component then checks if isContent is truthy and if so, it renders a bar chart using the data stored in mostOccure. It also includes a Download CSV button using the CSVLink component from the react-csv library, which exports the data in CSV format. The headers for the CSV file are defined in the headers array.
 
