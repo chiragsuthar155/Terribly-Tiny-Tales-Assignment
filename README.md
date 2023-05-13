@@ -1,5 +1,7 @@
 ## Terribly Tiny Tales Word Analysis Project
 
+## Live Project: https://terribly-tiny-tales-12019423.netlify.app/
+
 This is a React application that fetches data from a URL and analyzes the frequency of words in the text. The top 20 most frequently occurring words are displayed in a bar chart, and the user can also export the data in CSV format.
 
 ```
@@ -126,4 +128,3 @@ Download CSV
 
 This block of code defines the render method for the App component. It returns a form with an input field where the user can enter a URL to fetch text data. When the form is submitted, it calls the handleSubmit function. The component then checks if isContent is truthy and if so, it renders a bar chart using the data stored in mostOccure. It also includes a Download CSV button using the CSVLink component from the react-csv library, which exports the data in CSV format. The headers for the CSV file are defined in the headers array.
 
-## Live Project: https://terribly-tiny-tales-12019423.netlify.app/
